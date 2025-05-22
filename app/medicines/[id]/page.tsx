@@ -6,7 +6,6 @@ import Link from "next/link";
 import Image from "next/image";
 import { client } from "../../../sanity/lib/client";
 import { urlFor } from "@/sanity/lib/image";
-import { Heart } from "lucide-react";
 
 interface Product {
   _id: string;
@@ -36,17 +35,16 @@ export default function ProductDetail() {
   const id = router.id;
 
   useEffect(() => {
-    
-
     const fetchProduct = async () => {
-      const query = `*[_type == "medicine" && _id == $id][0] {_id, title, name, description, price, productImage, slug, category, stock,image}`;
-      const params = { id };
-      const data = await client.fetch(query, params);
+      const query = `*[_type == "medicine" && _id == $id][0] {
+        _id, title, name, description, price, productImage, slug, category, stock, image
+      }`;
+      const data = await client.fetch(query, { id });
       setProduct(data);
 
       if (data?.category?._ref) {
         const relatedQuery = `*[_type == "medicine" && category._ref == $categoryRef && _id != $id] {
-          _id, title, name, productImage, price, slug, stock,image
+          _id, title, name, productImage, price, slug, stock, image
         }`;
         const relatedData = await client.fetch(relatedQuery, {
           categoryRef: data.category._ref,
@@ -61,17 +59,18 @@ export default function ProductDetail() {
 
   if (!product) {
     return (
-      <div className="p-16 min-h-screen flex items-center justify-center text-xl text-gray-600">
+      <div className="p-8 min-h-screen flex items-center justify-center text-lg text-gray-600">
         Loading product details...
       </div>
     );
   }
 
   return (
-    <div className="p-16 min-h-auto md:w-[1170px] md:mx-auto">
-      <div className="flex flex-col md:flex-row text-[#252B42] gap-10 px-4 sm:px-8 lg:px-16 py-10">
+    <div className="p-4 sm:p-6 md:p-8 lg:p-12 xl:p-16 max-w-screen-xl mx-auto">
+      {/* Product Section */}
+      <div className="flex flex-col lg:flex-row items-start gap-10">
         {/* Product Image */}
-        <div className="relative flex justify-center md:w-1/2 mb-10 md:mb-0">
+        <div className="w-full lg:w-1/2 flex justify-center">
           <Image
             src={
               product.image
@@ -81,22 +80,24 @@ export default function ProductDetail() {
             alt={product.title || product.name}
             width={400}
             height={400}
-            className="w-full  max-w-[350px] sm:max-w-[300px] md:max-w-[500px] h-[430px] object-cover rounded-lg shadow-lg transition-all transform hover:scale-105"
+            className="w-full max-w-[90%] sm:max-w-[350px] md:max-w-[400px] lg:max-w-[500px] h-auto rounded-lg shadow-md object-cover"
           />
         </div>
 
         {/* Product Info */}
-        <div className="md:w-1/2 px-6">
-          <h1 className="text-3xl font-bold mt-4 md:mt-10 text-[#252B42]">
+        <div className="w-full lg:w-1/2">
+          <h1 className="text-2xl sm:text-3xl font-bold text-[#252B42] mt-4 lg:mt-0">
             {product.title || product.name}
           </h1>
-          <p className="mt-4 text-base text-gray-700">{product.description}</p>
+          <p className="mt-3 text-base text-gray-700 leading-relaxed">
+            {product.description}
+          </p>
 
-          <div className="mt-6">
-            <p className="text-xl font-extrabold text-[#80b934]">
+          <div className="mt-6 space-y-2">
+            <p className="text-lg sm:text-xl font-extrabold text-[#80b934]">
               Price: ${product.price}
             </p>
-            <p className="text-lg text-blue-700 mt-2">
+            <p className="text-md sm:text-lg text-blue-700">
               Available Stock: {product.stock}
             </p>
           </div>
@@ -104,53 +105,53 @@ export default function ProductDetail() {
       </div>
 
       {/* Related Products */}
-      <div>
-        <h2 className="text-[#80b934] mt-2 font-semibold md:ml-2 text-2xl">
+      <div className="mt-16">
+        <h2 className="text-[#80b934] text-xl sm:text-2xl font-semibold mb-6">
           Related Items
         </h2>
-        <div className="ml-6 mr-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-6 mt-10">
-          {relatedProducts.length === 0 ? (
-            <p>No related products found</p>
-          ) : (
-            relatedProducts.map((relatedItem) => (
+
+        {relatedProducts.length === 0 ? (
+          <p className="text-gray-500">No related products found.</p>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {relatedProducts.map((relatedItem) => (
               <div
                 key={relatedItem._id}
-                className="relative bg-white shadow-md rounded-lg overflow-hidden group"
+                className="bg-white rounded-lg shadow-md overflow-hidden transition-transform hover:scale-105"
               >
-                <div className="relative w-full h-64 bg-gray-200">
+                <div className="relative w-full h-52 sm:h-60 md:h-64 bg-gray-100">
                   <Image
                     src={
                       relatedItem.image
                         ? urlFor(relatedItem.image).url()
                         : "/fallback-image.png"
                     }
-                    alt={ relatedItem.name}
-                    width={200}
-                    height={200}
-                    className="object-cover w-full h-full"
+                    alt={relatedItem.name}
+                    fill
+                    className="object-cover"
                   />
                 </div>
 
                 <div className="p-4 text-center">
                   <Link href={`/medicines/${relatedItem._id}`}>
-                    <p className="text-[#252B42] font-semibold mt-4">
-                      { relatedItem.name}
+                    <p className="text-[#252B42] font-semibold hover:underline">
+                      {relatedItem.name}
                     </p>
                   </Link>
-                  <p className="text-xs mt-2 text-[#252B42]">
+                  <p className="text-sm text-gray-600 mt-1">
                     {relatedItem.description}
                   </p>
-                  <p className="text-slate-400 text-sm font-semibold mt-2">
+                  <p className="text-sm font-bold text-[#80b934] mt-2">
                     ${relatedItem.price}
                   </p>
-                  <p className="text-slate-400 text-sm font-semibold">
+                  <p className="text-sm text-gray-500">
                     Stock: {relatedItem.stock}
                   </p>
                 </div>
               </div>
-            ))
-          )}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
