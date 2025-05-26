@@ -101,6 +101,14 @@ export default function ProductDetail() {
               Available Stock: {product.stock}
             </p>
           </div>
+          <div className="p-4 pt-0">
+              <button
+                // onClick={() => handleAddToCart(med)}
+                className="w-full bg-[#80b934] hover:bg-[#6fa12b] text-white font-semibold py-2 px-4 rounded-xl transition"
+              >
+                Add to Cart
+              </button>
+            </div>
         </div>
       </div>
 

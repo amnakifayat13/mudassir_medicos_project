@@ -18,15 +18,12 @@ interface Medicine {
   stock: number;
   category?: {
     title: string;
-    // slug: {
-    //   current: string;
-    // };
   };
 }
 
 export default function Injections() {
   const [medicines, setMedicines] = useState<Medicine[]>([]);
-  const [category, setCategory] = useState("injecctions");
+  const [category, setCategory] = useState("injections");
 
   useEffect(() => {
     const fetchMedicines = async () => {
@@ -41,12 +38,17 @@ export default function Injections() {
           category->{name}, isNew
         }`
       );
-      {category}
       setMedicines(result);
     };
 
     fetchMedicines();
   }, [category]);
+
+  // Placeholder Add to Cart function
+  const handleAddToCart = (med: Medicine) => {
+    console.log("Adding to cart:", med);
+    // TODO: Replace with actual cart logic (Redux, Context API, Zustand, etc.)
+  };
 
   return (
     <div className="px-4 sm:px-6 lg:px-8 py-16 max-w-7xl mx-auto">
@@ -66,7 +68,7 @@ export default function Injections() {
         {medicines.map((med) => (
           <div
             key={med._id}
-            className="relative border rounded-xl shadow-md hover:shadow-xl transition-shadow bg-white"
+            className="relative border rounded-xl shadow-md hover:shadow-xl transition-shadow bg-white flex flex-col"
           >
             <div className="relative w-full h-60 rounded-t-xl overflow-hidden">
               <Image
@@ -78,7 +80,7 @@ export default function Injections() {
               />
             </div>
 
-            <div className="p-4 text-center">
+            <div className="p-4 text-center flex-grow">
               <Link href={`/medicines/${med._id}`}>
                 <p className="text-[#252B42] font-semibold text-base sm:text-lg hover:underline">
                   {med.name}
@@ -90,6 +92,15 @@ export default function Injections() {
               <p className="text-gray-600 text-sm mt-1">
                 Available Stock: <span className="font-medium">{med.stock}</span>
               </p>
+            </div>
+
+            <div className="p-4 pt-0">
+              <button
+                onClick={() => handleAddToCart(med)}
+                className="w-full bg-[#80b934] hover:bg-[#6fa12b] text-white font-semibold py-2 px-4 rounded-xl transition"
+              >
+                Add to Cart
+              </button>
             </div>
           </div>
         ))}

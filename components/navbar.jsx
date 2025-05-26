@@ -1,6 +1,6 @@
 import Link from "next/link"
 import Image from "next/image"
-import {  ArrowBigDownDashIcon, HeartIcon, PackageIcon, Search, ShoppingCartIcon, User, UserIcon } from "lucide-react"
+import {  ArrowBigDownDashIcon, HeartIcon, PackageIcon, SearchIcon, ShoppingCartIcon, User, UserIcon } from "lucide-react"
 import Menu from "../components/menu"
 // import ShoppingCartButton from "./Helper/ShoppingCartButton"
 // import SearchBar from "./Helper/searchbar"
@@ -34,6 +34,9 @@ export default function Nav(){
            <div className="md:hidden ml-2">
                 <Menu/>
                 </div>
+                <ShoppingCartIcon/>
+                <SearchIcon/>
+                <UserIcon/>
             
             </div>
             
