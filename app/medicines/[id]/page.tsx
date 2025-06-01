@@ -6,6 +6,11 @@ import Link from "next/link";
 import Image from "next/image";
 import { client } from "../../../sanity/lib/client";
 import { urlFor } from "@/sanity/lib/image";
+import { useDispatch,useSelector } from "react-redux";
+import { addItem, loadCartFromLocalStorage, removeItem } from "../../../store/cartSlice";
+import { RootState } from "../../../store/store"
+import { checkStockInSanity } from "../../stock";
+
 
 interface Product {
   _id: string;
@@ -28,11 +33,26 @@ interface Product {
   };
 }
 
+interface CartItem {
+  id: string;
+  name: string;
+  price: number;
+  imageUrl: string;
+  quantity: number;
+  category: string;
+}
+
 export default function ProductDetail() {
   const [product, setProduct] = useState<Product | null>(null);
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
+  const dispatch = useDispatch();
   const router = useParams() as { id: string };
   const id = router.id;
+
+  // Load the cart from localStorage when the component mounts
+    useEffect(() => {
+      dispatch(loadCartFromLocalStorage());
+    }, [dispatch]);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -57,6 +77,39 @@ export default function ProductDetail() {
     fetchProduct();
   }, [id]);
 
+   // Add to Cart Handler
+  const addToCartHandler = async (product: Product) => {
+    const stockInSanity = await checkStockInSanity(product._id);
+    console.log("stock in sanity : ", stockInSanity)
+    if (stockInSanity > 0) {
+      const cartItem: CartItem = {
+        id: product._id,
+        name: product.name,
+        price: product.price,
+        imageUrl: urlFor(product.image).url(),
+        quantity: 1,
+        category: product.name,
+      };
+      dispatch(addItem(cartItem));
+      console.log("Cart item added:", cartItem);
+    } else {
+      alert("Sorry, this product is out of stock.");
+    }
+    console.log("Image URL:", urlFor(product.image).url());
+    
+
+  };
+
+  // Remove from Cart Handler
+  const removeFromCartHandler = async (id: string) => {
+    dispatch(removeItem({ id }));
+
+
+  };
+  
+  
+  
+
   if (!product) {
     return (
       <div className="p-8 min-h-screen flex items-center justify-center text-lg text-gray-600">
@@ -64,6 +117,10 @@ export default function ProductDetail() {
       </div>
     );
   }
+
+   
+
+  
 
   return (
     <div className="p-4 sm:p-6 md:p-8 lg:p-12 xl:p-16 max-w-screen-xl mx-auto">
@@ -77,7 +134,7 @@ export default function ProductDetail() {
                 ? urlFor(product.image).url()
                 : "/fallback-image.png"
             }
-            alt={product.title || product.name}
+            alt={ product.name}
             width={400}
             height={400}
             className="w-full max-w-[90%] sm:max-w-[350px] md:max-w-[400px] lg:max-w-[500px] h-auto rounded-lg shadow-md object-cover"
@@ -85,9 +142,9 @@ export default function ProductDetail() {
         </div>
 
         {/* Product Info */}
-        <div className="w-full lg:w-1/2">
-          <h1 className="text-2xl sm:text-3xl font-bold text-[#252B42] mt-4 lg:mt-0">
-            {product.title || product.name}
+        <div className="w-full lg:w-1/2 mt-20">
+          <h1 className="text-2xl sm:text-3xl font-bold text-[#252B42] mt-16 lg:mt-0">
+            { product.name}
           </h1>
           <p className="mt-3 text-base text-gray-700 leading-relaxed">
             {product.description}
@@ -95,16 +152,16 @@ export default function ProductDetail() {
 
           <div className="mt-6 space-y-2">
             <p className="text-lg sm:text-xl font-extrabold text-[#80b934]">
-              Price: ${product.price}
+              Price: Rs.{product.price}
             </p>
             <p className="text-md sm:text-lg text-blue-700">
               Available Stock: {product.stock}
             </p>
           </div>
-          <div className="p-4 pt-0">
+          <div className=" pt-4">
               <button
-                // onClick={() => handleAddToCart(med)}
-                className="w-full bg-[#80b934] hover:bg-[#6fa12b] text-white font-semibold py-2 px-4 rounded-xl transition"
+                onClick={() => addToCartHandler(product)}
+                className="w-40 bg-[#80b934] hover:bg-[#6fa12b] text-white font-semibold py-2 px-4 rounded-xl transition"
               >
                 Add to Cart
               </button>
@@ -150,7 +207,7 @@ export default function ProductDetail() {
                     {relatedItem.description}
                   </p>
                   <p className="text-sm font-bold text-[#80b934] mt-2">
-                    ${relatedItem.price}
+                    Rs.{relatedItem.price}
                   </p>
                   <p className="text-sm text-gray-500">
                     Stock: {relatedItem.stock}

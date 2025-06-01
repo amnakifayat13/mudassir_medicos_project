@@ -24,18 +24,18 @@ export const updateStockAfterPayment = createAsyncThunk(
     try {
       for (const item of cartItems) {
         const product = await client.fetch(
-          `*[_type == "product" && _id == $id][0]`,
+          `*[_type == "medicine" && _id == $id][0]`,
           { id: item.id }
         );
 
         if (product) {
-          const updatedStock = product.stockQuantity - item.quantity;
+          const updatedStock = product.stock - item.quantity;
 
           // If stock is available, update the stock quantity
           if (updatedStock >= 0) {
             await client
               .patch(item.id) // Document ID
-              .set({ stockQuantity: updatedStock }) // Update the stockQuantity field
+              .set({ stock: updatedStock }) // Update the stockQuantity field
               .commit(); // Commit the changes
           } else {
             console.log(`Not enough stock for ${item.name}`);

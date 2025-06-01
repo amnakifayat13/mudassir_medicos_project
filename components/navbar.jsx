@@ -2,6 +2,7 @@ import Link from "next/link"
 import Image from "next/image"
 import {  ArrowBigDownDashIcon, HeartIcon, PackageIcon, SearchIcon, ShoppingCartIcon, User, UserIcon } from "lucide-react"
 import Menu from "../components/menu"
+import ShoppingCartButton from "./shoppingCartButton"
 // import ShoppingCartButton from "./Helper/ShoppingCartButton"
 // import SearchBar from "./Helper/searchbar"
 // import { ClerkLoaded, SignedIn, SignedOut, SignInButton, UserButton, useUser } from "@clerk/nextjs"
@@ -31,12 +32,16 @@ export default function Nav(){
                 </ul>
             </div>
            
-           <div className="md:hidden ml-2">
-                <Menu/>
-                </div>
-                <ShoppingCartIcon/>
+           
+               <div className="md:ml-28 flex md:gap-12 gap-4">
+                 <ShoppingCartButton/>
                 <SearchIcon/>
                 <UserIcon/>
+                <HeartIcon/>
+                <div className="md:hidden ml-2">
+                <Menu/>
+                </div>
+               </div>
             
             </div>
             

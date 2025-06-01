@@ -4,6 +4,8 @@ import { client } from "@/sanity/lib/client";
 import { urlFor } from "@/sanity/lib/image";
 import Image from "next/image";
 import Link from "next/link";
+import { useDispatch } from "react-redux";
+import {  loadCartFromLocalStorage } from "../store/cartSlice";
 
 // Type based on updated schema with category reference
 interface Medicine {
@@ -24,6 +26,7 @@ interface Medicine {
 export default function Syrup() {
   const [medicines, setMedicines] = useState<Medicine[]>([]);
   const [category, setCategory] = useState("syrups");
+   const dispatch = useDispatch();
 
   useEffect(() => {
     const fetchMedicines = async () => {
@@ -44,11 +47,11 @@ export default function Syrup() {
     fetchMedicines();
   }, [category]);
 
-  // Placeholder cart handler
-  const handleAddToCart = (med: Medicine) => {
-    console.log("Adding to cart:", med);
-    // Yahan Redux/Zustand/Context ke through cart logic add karein
-  };
+  // Load the cart from localStorage when the component mounts
+  useEffect(() => {
+    dispatch(loadCartFromLocalStorage());
+  }, [dispatch]);
+
 
   return (
     <div className="px-4 sm:px-6 lg:px-8 py-16 max-w-7xl mx-auto">
@@ -95,12 +98,7 @@ export default function Syrup() {
             </div>
 
             <div className="p-4 pt-0">
-              <button
-                onClick={() => handleAddToCart(med)}
-                className="w-full bg-[#80b934] hover:bg-[#6fa12b] text-white font-semibold py-2 px-4 rounded-xl transition"
-              >
-                Add to Cart
-              </button>
+              
             </div>
           </div>
         ))}
